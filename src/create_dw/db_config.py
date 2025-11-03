@@ -4,29 +4,32 @@ Creates DW
 """
 
 import sys
+import mysql.connector
 
 class DWH:
     def __init__(self, user: str, password: str) -> None:
         self.user = user
         self.password = password
+        self.conn = None
+        self.cur = None
+        self.establish_connection()
 
-    def establish_connection(self) -> bool:
+    def establish_connection(self) -> None:
         """
         Connects with MySQL
-        Returns 1 if success
-        Return 0 if failure
+        Exits if failure
         """
-        return False
-    
-    def connection_success(self) -> bool:
-
-        isSuccess: bool = data_warehouse.establish_connection()
-        if not isSuccess:
-            sys.exit("Program terminated: Failed to Connect to MySQL")
-        else:
-            # Create conn/cur    
+        try:
+            # Create conn/cur 
+            self.conn = mysql.connector.connect(
+                host="localhost",
+                user=self.user,
+                password=self.password
+            )   
+            cur = self.conn.cursor()
             print("Successfully Connected to MySQL")
-            return True
+        except Exception as e:
+            sys.exit(f"Program terminated: Failed to Connect to MySQL -> {e}")
     
     def create_dw(self):
         ...
@@ -38,7 +41,5 @@ if __name__=="__main__":
     password: str = input("Password: ")
     # DWH Object
     data_warehouse = DWH(user, password)
-    data_warehouse.connection_success()
 
-    print("hello")
     

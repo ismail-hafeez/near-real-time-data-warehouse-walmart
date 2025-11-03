@@ -1,2 +1,3 @@
 pandas
 ipykernel
+mysql-connector-python
