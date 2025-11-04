@@ -22,7 +22,7 @@ class DWH:
         with open(f"{PATH}/create_DWH.log", "a", encoding="utf-8") as file:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             file.write(f"[{timestamp}] - {message}\n")
-
+    
     def establish_connection(self) -> None:
         """
         Connects with MySQL
@@ -46,14 +46,14 @@ class DWH:
             self.log_db_donfig(log_mssg)
             sys.exit(f"Program terminated: Failed to Connect to MySQL -> {e}")
     
-    def create_dw(self, sql_path: str = 'sql_script.sql') -> None:
+    def create_dw(self, SQL_PATH: str = 'sql_script.sql') -> None:
         """
         Executes SQL script to create DWH
         """
         log_mssg: str = ''
         try:
             # Read the SQL file
-            with open(sql_path, 'r') as file:
+            with open(SQL_PATH, 'r') as file:
                 sql_script = file.read()
 
             # Split the script into individual statements
