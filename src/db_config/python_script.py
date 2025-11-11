@@ -82,7 +82,6 @@ if __name__=="__main__":
     user: str = input("User (e.g root): ")
     password: str = input("Password: ")
     # DWH Object
-    data_warehouse = DWH(user, password)
+    data_warehouse: DWH = DWH(user, password)
     # Creating DB
-    data_warehouse.create_dw()
-    
+    data_warehouse.create_dw()    
