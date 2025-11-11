@@ -22,4 +22,24 @@ part of the "Join Window." Each disk partition size will be 500 tuples.
 
 Stream Input (w): The number of available slots in the hash table which are equal to the
 number of free up spaces in the previous iteration.
+
+import pandas as pd
+
+df = pd.read_csv('../../data/transactional_data.csv')
+
+for i in range(len(df)):
+    row = df.iloc[i]  # or df.loc[i] for label-based indexing
+    print(row['column_name'])  # replace 'column_name' with the actual column name
+
 """
+import pandas as pd
+
+if __name__=="__main__":
+    DATA = '../../data/transactional_data.csv'
+
+    df = pd.read_csv(DATA)
+
+    row = df.iloc[0]
+    print(row)
+
+    
