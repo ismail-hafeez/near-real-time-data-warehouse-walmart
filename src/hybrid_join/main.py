@@ -26,13 +26,30 @@ import pandas as pd
 from stream_buffer import StreamBuffer
 from hash_table import HashTable
 
+def generate_tuple(df: pd.DataFrame, index: int) -> tuple:
+    """Return a tuple for each transactional row"""
+
+    row = df.iloc[idx]
+
+    orderID = int(row.orderID)
+    Customer_ID = int(row.Customer_ID)
+    Product_ID = str(row.Product_ID)
+    quantity = int(row.quantity)
+    date = str(row.date)
+
+    trans_tuple = (orderID, Customer_ID, Product_ID, quantity, date)
+
+    return trans_tuple
+
 
 if __name__=="__main__":
+    
     DATA = '../../data/transactional_data.csv'
-
     df = pd.read_csv(DATA)
 
-    row = df.iloc[0]
-    print(row)
+    # Main Outer Loop
+    for idx in range(len(df)):
+        row_tuple = generate_tuple(df, idx)
+
 
     
