@@ -46,11 +46,21 @@ if __name__=="__main__":
     DATA = '../../data/transactional_data.csv'
     df = pd.read_csv(DATA)
 
+    hash_table = HashTable()
+    print(f"Slots Available: {hash_table.get_available_slots()}")
+
     # Main Outer Loop
     for idx in range(len(df)): 
+        print(idx + 1)
         row_tuple = generate_tuple(df, idx)
-        print(row_tuple)
-        break
 
+        _, key, *_ = row_tuple
+
+        hash_table.insert(row_tuple, key)
+
+        print(f"Slots Available: {hash_table.get_available_slots()}")
+        
+        
+      
 
     
