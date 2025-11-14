@@ -29,7 +29,7 @@ from hash_table import HashTable
 def generate_tuple(df: pd.DataFrame, index: int) -> tuple:
     """Return a tuple for each transactional row"""
 
-    row = df.iloc[idx]
+    row = df.iloc[index]
 
     orderID = int(row.orderID)
     Customer_ID = int(row.Customer_ID)
@@ -41,15 +41,16 @@ def generate_tuple(df: pd.DataFrame, index: int) -> tuple:
 
     return trans_tuple
 
-
 if __name__=="__main__":
     
     DATA = '../../data/transactional_data.csv'
     df = pd.read_csv(DATA)
 
     # Main Outer Loop
-    for idx in range(len(df)):
+    for idx in range(len(df)): 
         row_tuple = generate_tuple(df, idx)
+        print(row_tuple)
+        break
 
 
     

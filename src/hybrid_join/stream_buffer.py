@@ -25,14 +25,15 @@ class StreamBuffer:
         else:
             print("Buffer empty!")
             return None
-
-# Example usage
-buffer = StreamBuffer(max_size=3)
-buffer.add(1)
-buffer.add(2)
-buffer.add(3)
-buffer.add(4)  # Buffer full, 1 will be removed
-buffer.get()
-buffer.get()
-buffer.get()
-buffer.get()  # Buffer empty
+        
+if __name__=="__main__":
+    # Example usage
+    buffer = StreamBuffer(max_size=3)
+    buffer.add(1)
+    buffer.add(2)
+    buffer.add(3)
+    buffer.add(4)  # Buffer full, 1 will be removed
+    buffer.get()
+    buffer.get()
+    buffer.get()
+    buffer.get()  # Buffer empty
