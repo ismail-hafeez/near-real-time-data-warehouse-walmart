@@ -7,15 +7,17 @@ from collections import deque
 
 class StreamBuffer:
     def __init__(self, max_size):
-        self.buffer = deque()  # double-ended queue
-        self.max_size = max_size
-
+        self.buffer = deque()  
+        
     def add(self, item):
-        if len(self.buffer) >= self.max_size:
+        if self.buffer:
             print("Buffer full! Removing oldest item.")
             self.buffer.popleft()  # remove oldest element
         self.buffer.append(item)
         print(f"Added: {item}, Buffer: {list(self.buffer)}")
+
+    def push(self, tuple_):
+        self.buffer.append(tuple_)
 
     def get(self):
         if self.buffer:
@@ -26,6 +28,14 @@ class StreamBuffer:
             print("Buffer empty!")
             return None
         
+    def size(self):
+        return len(self.buffer)
+    
+    def pop(self):
+        if self.buffer:
+            return self.buffer.popleft()
+        return None
+
 if __name__=="__main__":
     # Example usage
     buffer = StreamBuffer(max_size=3)

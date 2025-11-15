@@ -54,6 +54,7 @@ if __name__=="__main__":
         print(idx + 1)
         row_tuple = generate_tuple(df, idx)
 
+        # Extracting Key (CustomerID) for Hashing
         _, key, *_ = row_tuple
 
         hash_table.insert(row_tuple, key)
