@@ -6,9 +6,6 @@
 # Key Components: hash table, queue, disk buffer, and a stream buffer.
 
 """
-Queue: A doubly-linked list that stores the join attribute values (keys) from the stream tuples in FIFO order. 
-Each node also has pointers to its neighbors. The queue tracks the order of arrival for fairness in processing.
-
 Disk Buffer: A memory buffer that holds a loaded partition p of size vP from R. This is
 part of the "Join Window." Each disk partition size will be 500 tuples.
 
