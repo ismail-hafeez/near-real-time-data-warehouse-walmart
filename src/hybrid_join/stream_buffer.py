@@ -4,20 +4,24 @@ can't process them immediately. This prevents loss of data in bursty scenarios.
 """
 
 from collections import deque
+from datetime import datetime
 
 class StreamBuffer:
-    def __init__(self, max_size):
+    def __init__(self):
         self.buffer = deque()  
-        
-    def add(self, item):
-        if self.buffer:
-            print("Buffer full! Removing oldest item.")
-            self.buffer.popleft()  # remove oldest element
-        self.buffer.append(item)
-        print(f"Added: {item}, Buffer: {list(self.buffer)}")
 
-    def push(self, tuple_):
-        self.buffer.append(tuple_)
+    @staticmethod
+    def log_stream(message: str) -> None:
+        PATH = "../../logs"
+        # Writing to log file
+        with open(f"{PATH}/Stream_buffer.log", "a", encoding="utf-8") as file:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            file.write(f"[{timestamp}] - {message}\n")
+        
+    def push(self, data: tuple) -> None:
+        self.buffer.append(data)
+        log_message: str = f"Added: {data}, Buffer: {list(self.buffer)}"
+        self.log_stream(log_message)
 
     def get(self):
         if self.buffer:
@@ -28,22 +32,8 @@ class StreamBuffer:
             print("Buffer empty!")
             return None
         
-    def size(self):
-        return len(self.buffer)
-    
-    def pop(self):
-        if self.buffer:
-            return self.buffer.popleft()
-        return None
+    def size(self) -> int:
+        return len(self.buffer)   
 
 if __name__=="__main__":
-    # Example usage
-    buffer = StreamBuffer(max_size=3)
-    buffer.add(1)
-    buffer.add(2)
-    buffer.add(3)
-    buffer.add(4)  # Buffer full, 1 will be removed
-    buffer.get()
-    buffer.get()
-    buffer.get()
-    buffer.get()  # Buffer empty
+    ...

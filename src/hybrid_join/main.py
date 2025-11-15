@@ -25,6 +25,8 @@ algorithm.
 import pandas as pd
 from stream_buffer import StreamBuffer
 from hash_table import HashTable
+import threading
+import time
 
 def generate_tuple(df: pd.DataFrame, index: int) -> tuple:
     """Return a tuple for each transactional row"""
@@ -41,21 +43,50 @@ def generate_tuple(df: pd.DataFrame, index: int) -> tuple:
 
     return trans_tuple
 
+def extract_key(tup: tuple) -> int:
+    # Extracting Key (CustomerID) for Hashing
+    _, key, *_ = row_tuple
+    return key
+
+def stream_feeder(stream_buffer, csv_path):
+    """
+    Continuously read the CSV and push tuples into stream buffer.
+    Simulates a real-time transactional stream.
+    """
+
+    df = pd.read_csv(csv_path)
+    idx = 0
+
+    while True:
+        if idx < len(df):
+            row_tuple: tuple = generate_tuple(df, idx)
+            stream_buffer.push(row_tuple)
+            idx += 1
+
+        time.sleep(0.001)  
+
 if __name__=="__main__":
     
-    DATA = '../../data/transactional_data.csv'
-    df = pd.read_csv(DATA)
+    DATA_PATH = '../../data/transactional_data.csv'
+    df = pd.read_csv(DATA_PATH)
 
+    stream_buffer = StreamBuffer()
     hash_table = HashTable()
+
+    # Create threads
+    feeder_thread = threading.Thread(
+        target=stream_feeder, args=(stream_buffer, DATA_PATH), daemon=True
+    )
+    
     print(f"Slots Available: {hash_table.get_available_slots()}")
 
     # Main Outer Loop
     for idx in range(len(df)): 
         print(idx + 1)
-        row_tuple = generate_tuple(df, idx)
+        row_tuple: tuple = generate_tuple(df, idx)
 
         # Extracting Key (CustomerID) for Hashing
-        _, key, *_ = row_tuple
+        key: int = extract_key(row_tuple)
 
         hash_table.insert(row_tuple, key)
 
