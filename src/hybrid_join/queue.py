@@ -4,15 +4,13 @@ Each node also has pointers to its neighbors. The queue tracks the order of arri
 
 """
 
-# join_queue.py
-
 class Node:
     def __init__(self, key: int):
         self.key = key
         self.prev = None
         self.next = None
 
-class JoinQueue:
+class Queue:
     def __init__(self):
         self.head = None
         self.tail = None
@@ -38,7 +36,7 @@ class JoinQueue:
             self.head.prev = None
         else:
             self.tail = None  # queue is empty
-
+            
         return key
 
     def is_empty(self) -> bool:

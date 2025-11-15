@@ -23,14 +23,16 @@ class StreamBuffer:
         log_message: str = f"Added: {data}, Buffer: {list(self.buffer)}"
         self.log_stream(log_message)
 
-    def get(self):
+    def pop(self) -> tuple | None:
         if self.buffer:
             item = self.buffer.popleft()
-            print(f"Retrieved: {item}, Buffer: {list(self.buffer)}")
+            log_message: str = f"Retrieved: {item}, Buffer: {list(self.buffer)}"
+            self.log_stream(log_message)
             return item
         else:
-            print("Buffer empty!")
-            return None
+            log_message: str = "Buffer empty!"
+            self.log_stream(log_message)
+            return None 
         
     def size(self) -> int:
         return len(self.buffer)   

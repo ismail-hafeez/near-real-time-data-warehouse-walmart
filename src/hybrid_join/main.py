@@ -22,6 +22,7 @@ algorithm.
 import pandas as pd
 from stream_buffer import StreamBuffer
 from hash_table import HashTable
+from queue import Queue
 import threading
 import time
 
@@ -62,6 +63,39 @@ def stream_feeder(stream_buffer, csv_path):
 
         time.sleep(0.001)  
 
+def hybridjoin_worker(stream_buffer, hash_table, join_queue):
+    """
+    Continuously runs the Hybrid Join algorithm.
+    """
+
+    while True:
+
+        # 1. Check available hash table slots
+        w = hash_table.get_available_slots()
+
+        # 2. Load up to w stream tuples
+        loaded = 0
+        while loaded < w and not stream_buffer.is_empty():
+            tup = stream_buffer.pop()
+            _, key, *_ = tup  # Customer_ID
+
+            hash_table.insert(key, tup)
+            join_queue.enqueue(key)
+
+            loaded += 1
+
+        # 3. Get oldest key
+        oldest_key = join_queue.dequeue()
+        if oldest_key is None:
+            time.sleep(0.001)
+            continue
+
+        # 4. Load disk partition for that key (pseudo)
+        # partition = load_partition(oldest_key)
+        # probe partition with hash table...
+
+        time.sleep(0.001)  # loop pacing
+
 if __name__=="__main__":
     
     DATA_PATH = '../../data/transactional_data.csv'
@@ -69,10 +103,14 @@ if __name__=="__main__":
 
     stream_buffer = StreamBuffer()
     hash_table = HashTable()
+    queue = Queue() 
 
     # Create threads
     feeder_thread = threading.Thread(
         target=stream_feeder, args=(stream_buffer, DATA_PATH), daemon=True
+    )
+    join_thread = threading.Thread(
+        target=hybridjoin_worker, args=(stream_buffer, hash_table, queue), daemon=True
     )
     
     print(f"Slots Available: {hash_table.get_available_slots()}")
