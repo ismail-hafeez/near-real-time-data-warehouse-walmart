@@ -111,7 +111,7 @@ if __name__=="__main__":
     )
     join_thread = threading.Thread(
         target=hybridjoin_worker, args=(stream_buffer, hash_table, queue), daemon=True
-    )
+    ) 
     
     print(f"Slots Available: {hash_table.get_available_slots()}")
 
