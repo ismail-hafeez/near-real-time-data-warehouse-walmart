@@ -5,10 +5,12 @@ can't process them immediately. This prevents loss of data in bursty scenarios.
 
 from collections import deque
 from datetime import datetime
+import threading
 
 class StreamBuffer:
     def __init__(self):
         self.buffer = deque()  
+        self.lock = threading.Lock()
 
     @staticmethod
     def log_stream(message: str) -> None:
@@ -19,23 +21,30 @@ class StreamBuffer:
             file.write(f"[{timestamp}] - {message}\n")
         
     def push(self, data: tuple) -> None:
-        self.buffer.append(data)
+        with self.lock:
+            self.buffer.append(data)
         log_message: str = f"Added: {data}, Buffer: {list(self.buffer)}"
         self.log_stream(log_message)
 
     def pop(self) -> tuple | None:
-        if self.buffer:
-            item = self.buffer.popleft()
-            log_message: str = f"Retrieved: {item}, Buffer: {list(self.buffer)}"
-            self.log_stream(log_message)
-            return item
-        else:
-            log_message: str = "Buffer empty!"
-            self.log_stream(log_message)
-            return None 
+        with self.lock:
+            if self.buffer:
+                item = self.buffer.popleft()
+                log_message: str = f"Retrieved: {item}, Buffer: {list(self.buffer)}"
+                self.log_stream(log_message)
+                return item
+            else:
+                log_message: str = "Buffer empty!"
+                self.log_stream(log_message)
+                return None 
         
     def size(self) -> int:
-        return len(self.buffer)   
+        with self.lock:
+            return len(self.buffer)   
+
+    def is_empty(self):
+        with self.lock:
+            return len(self.buffer) == 0
 
 if __name__=="__main__":
     ...
