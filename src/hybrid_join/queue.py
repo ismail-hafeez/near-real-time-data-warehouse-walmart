@@ -21,8 +21,8 @@ class Queue:
         if self.tail is None:
             self.head = self.tail = node
         else:
-            self.tail.next = node  # type: ignore
-            node.prev = self.tail # type: ignore
+            self.tail.next = node  
+            node.prev = self.tail 
             self.tail = node
 
     def dequeue(self) -> int | None:

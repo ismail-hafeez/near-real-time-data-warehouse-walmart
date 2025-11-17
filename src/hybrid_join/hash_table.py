@@ -24,7 +24,7 @@ class HashTable:
         """Compute hash index for a key"""
         return hash(key) % self.hS
 
-    def insert(self, key, value) -> None:
+    def insert(self, key: int, value: tuple) -> None:
         """Inserts new entry or updates existing"""
 
         index = self._hash(key)
@@ -63,13 +63,4 @@ class HashTable:
         self.log_hashed(log_message)
 
 if __name__=="__main__":
-    # Example usage
-    ht = HashTable()
-
-    ht.insert("apple", 10)
-    ht.insert("banana", 20)
-    ht.insert("orange", 30)
-
-    print("Get apple:", ht.get("apple"))
-    ht.delete("banana")
-    print("Get banana:", ht.get("banana"))
+    ...

@@ -43,10 +43,10 @@ def generate_tuple(df: pd.DataFrame, index: int) -> tuple:
 
 def extract_key(tup: tuple) -> int:
     # Extracting Key (CustomerID) for Hashing
-    _, key, *_ = row_tuple
+    _, key, *_ = tup
     return key
 
-def stream_feeder(stream_buffer, csv_path):
+def stream_feeder(stream_buffer: StreamBuffer, csv_path: str) -> None:
     """
     Continuously read the CSV and push tuples into stream buffer.
     Simulates a real-time transactional stream.
@@ -59,33 +59,31 @@ def stream_feeder(stream_buffer, csv_path):
         if idx < len(df):
             row_tuple: tuple = generate_tuple(df, idx)
             stream_buffer.push(row_tuple)
-            idx += 1
+            idx += 1 
 
-        time.sleep(0.001)  
-
-def hybridjoin_worker(stream_buffer, hash_table, join_queue):
+def hybridjoin_worker(stream_buffer: StreamBuffer, hash_table: HashTable, queue: Queue) -> None:
     """
     Continuously runs the Hybrid Join algorithm.
     """
 
     while True:
 
-        # 1. Check available hash table slots
-        w = hash_table.get_available_slots()
+        # Check available hash table slots
+        slots_available = hash_table.get_available_slots()
 
-        # 2. Load up to w stream tuples
+        # Load up to w stream tuples
         loaded = 0
-        while loaded < w and not stream_buffer.is_empty():
-            tup = stream_buffer.pop()
-            _, key, *_ = tup  # Customer_ID
+        while loaded < slots_available and not stream_buffer.is_empty(): 
+            row: tuple = stream_buffer.pop() 
+            key = extract_key(row)  # Customer_ID 
 
-            hash_table.insert(key, tup)
-            join_queue.enqueue(key)
+            hash_table.insert(key, row) 
+            queue.enqueue(key) 
 
             loaded += 1
 
         # 3. Get oldest key
-        oldest_key = join_queue.dequeue()
+        oldest_key = queue.dequeue() 
         if oldest_key is None:
             time.sleep(0.001)
             continue
@@ -113,19 +111,17 @@ if __name__=="__main__":
         target=hybridjoin_worker, args=(stream_buffer, hash_table, queue), daemon=True
     ) 
     
-    print(f"Slots Available: {hash_table.get_available_slots()}")
+    # Start threads
+    feeder_thread.start()
+    join_thread.start()
 
-    # Main Outer Loop
-    for idx in range(len(df)): 
-        print(idx + 1)
-        row_tuple: tuple = generate_tuple(df, idx)
+    # Keep main thread alive
+    while True:
+        time.sleep(1)
 
-        # Extracting Key (CustomerID) for Hashing
-        key: int = extract_key(row_tuple)
 
-        hash_table.insert(row_tuple, key)
 
-        print(f"Slots Available: {hash_table.get_available_slots()}")
+
         
         
       
