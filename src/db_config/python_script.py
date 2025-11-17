@@ -11,8 +11,10 @@ class DWH:
     def __init__(self, user: str, password: str) -> None:
         self.user = user
         self.password = password
-        #self.conn
-        #self.cur
+        self.conn
+        self.cur
+        self.SQL_PATH = 'createDW.sql'
+        self.POP_PATH = 'populateDW.sql'
         self.establish_connection()
 
     @staticmethod
@@ -46,14 +48,14 @@ class DWH:
             self.log_db_donfig(log_mssg)
             sys.exit(f"Program terminated: Failed to Connect to MySQL -> {e}")
     
-    def create_dw(self, SQL_PATH: str = 'sql_script.sql') -> None:
+    def create_dw(self) -> None:
         """
         Executes SQL script to create DWH
         """
         log_mssg: str = ''
         try:
             # Read the SQL file
-            with open(SQL_PATH, 'r') as file:
+            with open(self.SQL_PATH, 'r') as file:
                 sql_script = file.read()
 
             # Split the script into individual statements
@@ -76,12 +78,44 @@ class DWH:
             self.conn.close()
             self.log_db_donfig(log_mssg)
 
+    def populate_dw(self) -> None:
+        """
+        Populates DW with initial Data
+        """
+        log_mssg: str = ''
+        try:
+            # Read the SQL file
+            with open(self.POP_PATH, 'r') as file:
+                sql_script = file.read()
+
+            # Split the script into individual statements
+            statements = sql_script.split(';')
+
+            for stmt in statements:
+                stmt = stmt.strip()
+                if stmt:
+                    self.cur.execute(stmt)
+
+            self.conn.commit()
+            log_mssg = "Data Warehouse populated successfully!"
+
+        except Exception as e:
+            self.conn.rollback()
+            log_mssg = f"Error while populating DW: {e}"
+
+        finally:
+            self.cur.close()
+            self.conn.close()
+            self.log_db_donfig(log_mssg)
+
 if __name__=="__main__":
 
     # Taking User input
     user: str = input("User (e.g root): ")
     password: str = input("Password: ")
     # DWH Object
-    data_warehouse: DWH = DWH(user, password)
+    data_warehouse = DWH(user, password)
     # Creating DB
-    data_warehouse.create_dw()    
+    data_warehouse.create_dw()  
+    # Populate DW
+    data_warehouse.populate_dw()  

@@ -112,12 +112,3 @@ if __name__=="__main__":
     # Keep main thread alive
     while True:
         time.sleep(1)
-
-
-
-
-        
-        
-      
-
-    
