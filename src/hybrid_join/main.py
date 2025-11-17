@@ -6,12 +6,6 @@
 # Key Components: hash table, queue, disk buffer, and a stream buffer.
 
 """
-Disk Buffer: A memory buffer that holds a loaded partition p of size vP from R. This is
-part of the "Join Window." Each disk partition size will be 500 tuples.
-
-Stream Input (w): The number of available slots in the hash table which are equal to the
-number of free up spaces in the previous iteration.
-
 The stream buffer will continuously get transactional data as the HYBRIDJOIN is
 for the near real time data. A thread will be implemented which will continuously get data
 from the transactional_data.csv provided into the stream buffer independent of the join
