@@ -51,16 +51,19 @@ class HashTable:
                 return pair[1]
         return None  # Key not found
 
-    def delete(self, key) -> None:
+    def delete(self, key: int, value: tuple) -> bool:
         index = self._hash(key)
-        for i, pair in enumerate(self.table[index]):
-            if pair[0] == key:
-                self.table[index].pop(i)
-                log_message: str = f"Deleted key {key}"
-                self.log_hashed(log_message)
-                return
-        log_message: str = f"Key {key} not found"
-        self.log_hashed(log_message)
+        bucket = self.table[index]
+
+        for i, pair in enumerate(bucket):
+            k, v = pair
+
+            if k == key and v == value:
+                bucket.pop(i)
+                self.slots_available += 1
+                return True
+
+        return False
 
 if __name__=="__main__":
     ...
