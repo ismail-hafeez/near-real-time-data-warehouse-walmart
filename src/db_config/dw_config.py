@@ -11,8 +11,6 @@ class DWH:
     def __init__(self, user: str, password: str) -> None:
         self.user = user
         self.password = password
-        self.conn
-        self.cur
         self.SQL_PATH = 'createDW.sql'
         self.POP_PATH = 'populateDW.sql'
         self.establish_connection()
@@ -116,6 +114,10 @@ if __name__=="__main__":
     # DWH Object
     data_warehouse = DWH(user, password)
     # Creating DB
+    print('Creating Data Warehouse')
     data_warehouse.create_dw()  
     # Populate DW
+    print('Populating Data Warehouse')
     data_warehouse.populate_dw()  
+    
+    print('Success')

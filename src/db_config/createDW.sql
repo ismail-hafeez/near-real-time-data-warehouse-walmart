@@ -1,4 +1,7 @@
 -- SQL Script To Create Data Warehouse --
+DROP DATABASE IF EXISTS walmart_dw;
+CREATE DATABASE walmart_dw;
+USE walmart_dw;
 
 -- Drop existing tables if they exist (in correct order due to FK constraints)
 DROP TABLE IF EXISTS FactSales;
@@ -92,53 +95,6 @@ CREATE TABLE FactSales (
         ON DELETE RESTRICT
         ON UPDATE CASCADE
 );
-
--- ============================================================
--- INDEXES FOR PERFORMANCE OPTIMIZATION
--- ============================================================
-
--- Indexes on Dimension Tables
-CREATE INDEX idx_customer_gender ON DimCustomer(Gender);
-CREATE INDEX idx_customer_age ON DimCustomer(Age);
-CREATE INDEX idx_customer_occupation ON DimCustomer(Occupation);
-CREATE INDEX idx_customer_city ON DimCustomer(City_Category);
-
-CREATE INDEX idx_product_cat1 ON DimProduct(Product_Category_1);
-CREATE INDEX idx_product_supplier ON DimProduct(Supplier_ID);
-
-CREATE INDEX idx_date_year ON DimDate(Year);
-CREATE INDEX idx_date_month ON DimDate(Month);
-CREATE INDEX idx_date_quarter ON DimDate(Quarter);
-CREATE INDEX idx_date_weekend ON DimDate(Is_Weekend);
-
-CREATE INDEX idx_store_city ON DimStore(Store_City_Category);
-
--- Indexes on Fact Table (composite indexes for common query patterns)
-CREATE INDEX idx_fact_customer ON FactSales(Customer_ID);
-CREATE INDEX idx_fact_product ON FactSales(Product_ID);
-CREATE INDEX idx_fact_date ON FactSales(Date_ID);
-CREATE INDEX idx_fact_store ON FactSales(Store_ID);
-CREATE INDEX idx_fact_date_product ON FactSales(Date_ID, Product_ID);
-CREATE INDEX idx_fact_customer_date ON FactSales(Customer_ID, Date_ID);
-
--- ============================================================
--- MATERIALIZED VIEW FOR Q20
--- ============================================================
-
--- View for Store Quarterly Sales (Q20 requirement)
-CREATE VIEW STORE_QUARTERLY_SALES AS
-SELECT 
-    s.Store_ID,
-    s.Store_Name,
-    d.Year,
-    d.Quarter,
-    SUM(f.Purchase_Amount) AS Total_Sales,
-    COUNT(f.Sale_ID) AS Transaction_Count
-FROM FactSales f
-JOIN DimStore s ON f.Store_ID = s.Store_ID
-JOIN DimDate d ON f.Date_ID = d.Date_ID
-GROUP BY s.Store_ID, s.Store_Name, d.Year, d.Quarter
-ORDER BY s.Store_Name, d.Year, d.Quarter;
 
 -- ============================================================
 -- END OF DDL SCRIPT
