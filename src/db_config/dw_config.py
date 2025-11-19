@@ -6,6 +6,7 @@ Creates DW
 import sys
 import mysql.connector
 from datetime import datetime
+import pandas as pd
 
 class DWH:
     def __init__(self, user: str, password: str) -> None:
@@ -13,8 +14,45 @@ class DWH:
         self.password = password
         self.SQL_PATH = 'createDW.sql'
         self.POP_PATH = 'populateDW.sql'
+        self.CUSTOMER_M_DATA = '../../data/customer_master_data.csv'
+        self.PRODUCT_M_DATA = '../../data/product_master_data.csv'
         self.establish_connection()
 
+    # -- Helper Functions -- #
+    @staticmethod
+    def generate_tuple_customer(df: pd.DataFrame, index: int) -> tuple:
+
+        row = df.iloc[index]
+
+        Customer_ID = int(row.Customer_ID)
+        gender = str(row.Gender)
+        age = str(row.Age)
+        occupation = int(row.Occupation)
+        City_Category = str(row.City_Category)
+        yrs = str(row.Stay_In_Current_City_Years)
+        Marital_Status = int(row.Marital_Status)
+
+        row_tuple = (Customer_ID, gender, age, occupation, City_Category, yrs, Marital_Status)
+
+        return row_tuple
+
+    @staticmethod
+    def generate_tuple_product(df: pd.DataFrame, index: int) -> tuple:
+
+        row = df.iloc[index]
+
+        Customer_ID = int(row.Customer_ID)
+        gender = str(row.Gender)
+        age = str(row.Age)
+        occupation = int(row.Occupation)
+        City_Category = str(row.City_Category)
+        yrs = str(row.Stay_In_Current_City_Years)
+        Marital_Status = int(row.Marital_Status)
+
+        row_tuple = (Customer_ID, gender, age, occupation, City_Category, yrs, Marital_Status)
+
+        return row_tuple
+    
     @staticmethod
     def log_db_donfig(message: str) -> None:
         PATH = "../../logs"
@@ -76,35 +114,60 @@ class DWH:
             self.conn.close()
             self.log_db_donfig(log_mssg)
 
-    def populate_dw(self) -> None:
-        """
-        Populates DW with initial Data
-        """
-        log_mssg: str = ''
-        try:
-            # Read the SQL file
-            with open(self.POP_PATH, 'r') as file:
-                sql_script = file.read()
+    # -- Main Functions -- #
+    def populate_dim_customer(self) -> None:
+        
+        customer_df = pd.read_csv(self.CUSTOMER_M_DATA)
 
-            # Split the script into individual statements
-            statements = sql_script.split(';')
+        for index in range(len(customer_df)):
+            row_tup = self.generate_tuple_customer(customer_df, index)
 
-            for stmt in statements:
-                stmt = stmt.strip()
-                if stmt:
-                    self.cur.execute(stmt)
+            try:
+                query = """
+                    INSERT INTO walmart_dw.dimcustomer (
+                        Customer_ID,
+                        Gender,
+                        Age,
+                        Occupation,
+                        City_Category,
+                        Stay_In_Current_City_Years,
+                        Marital_Status
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);
+                """
+                self.cur.execute(query, row_tup)
+                self.conn.commit()
+                print("Dim_Customer table successfully populated")        
 
-            self.conn.commit()
-            log_mssg = "Data Warehouse populated successfully!"
+            except Exception as e:
+                print(f"Error Populating DW: {e}")        
 
-        except Exception as e:
-            self.conn.rollback()
-            log_mssg = f"Error while populating DW: {e}"
+    def populate_dim_product(self) -> None:
+        
+        product_df = pd.read_csv(self.PRODUCT_M_DATA)
 
-        finally:
-            self.cur.close()
-            self.conn.close()
-            self.log_db_donfig(log_mssg)
+        for index in range(len(product_df)):
+            row_tup = self.generate_tuple_product(product_df, index)
+
+            try:
+                query = """
+                    INSERT INTO walmart_dw.dimproduct (
+                        Product_ID,
+                        Gender,
+                        Age,
+                        Occupation,
+                        City_Category,
+                        Stay_In_Current_City_Years,
+                        Marital_Status
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s);
+                """
+                self.cur.execute(query, row_tup)
+                self.conn.commit()
+                print("Dim_Customer table successfully populated")        
+
+            except Exception as e:
+                print(f"Error Populating DW: {e}")    
 
 if __name__=="__main__":
 
@@ -118,6 +181,6 @@ if __name__=="__main__":
     data_warehouse.create_dw()  
     # Populate DW
     print('Populating Data Warehouse')
-    data_warehouse.populate_dw()  
+    data_warehouse.populate_dim_customer()  
     
     print('Success')

@@ -16,6 +16,7 @@ algorithm.
 import pandas as pd
 from stream_buffer import StreamBuffer
 from hash_table import HashTable
+from disk_buffer import DiskBuffer
 from queue import Queue
 import threading
 import time
@@ -55,7 +56,7 @@ def stream_feeder(stream_buffer: StreamBuffer, csv_path: str) -> None:
             stream_buffer.push(row_tuple)
             idx += 1 
 
-def hybridjoin_worker(stream_buffer: StreamBuffer, hash_table: HashTable, queue: Queue) -> None:
+def hybridjoin_worker(stream_buffer: StreamBuffer, hash_table: HashTable, queue: Queue, disk_buffer: DiskBuffer) -> None:
     """
     Continuously runs the Hybrid Join algorithm.
     """
@@ -69,8 +70,10 @@ def hybridjoin_worker(stream_buffer: StreamBuffer, hash_table: HashTable, queue:
         loaded = 0
         while loaded < slots_available and not stream_buffer.is_empty(): 
             row: tuple = stream_buffer.pop() 
-            key = extract_key(row)  # Customer_ID 
+            if row is None:
+                break
 
+            key = extract_key(row)  # Customer_ID 
             hash_table.insert(key, row) 
             queue.enqueue(key) 
 
@@ -83,26 +86,50 @@ def hybridjoin_worker(stream_buffer: StreamBuffer, hash_table: HashTable, queue:
             continue
 
         # 4. Load disk partition for that key (pseudo)
-        # partition = load_partition(oldest_key)
-        # probe partition with hash table...
+        partition = disk_buffer.load_partition(oldest_key)
+        if not partition:
+            continue
+
+        # 5. Probe partition against hash table
+        matches = hash_table.get(oldest_key)
+        if not matches:
+            continue
+
+        # 6. Produce join results
+        for stream_tuple in matches:
+            for disk_tuple in partition:
+
+                # Emit join
+                result = (stream_tuple, disk_tuple)
+                print("JOIN RESULT:", result)
+
+                # Remove from hash table to free memory
+                hash_table.delete(oldest_key, stream_tuple)
 
         time.sleep(0.001)  # loop pacing
 
 if __name__=="__main__":
     
-    DATA_PATH = '../../data/transactional_data.csv'
-    df = pd.read_csv(DATA_PATH)
+    TRANSACTION_CSV = "../../data/transactional_data.csv"
+    MASTER_R_CSV = "../../data/customer_master_data.csv"
+
+    df = pd.read_csv(TRANSACTION_CSV)
 
     stream_buffer = StreamBuffer()
     hash_table = HashTable()
     queue = Queue() 
+    disk_buffer = DiskBuffer(MASTER_R_CSV, partition_size=500)
 
     # Create threads
     feeder_thread = threading.Thread(
-        target=stream_feeder, args=(stream_buffer, DATA_PATH), daemon=True
+        target=stream_feeder, 
+        args=(stream_buffer, TRANSACTION_CSV), 
+        daemon=True
     )
     join_thread = threading.Thread(
-        target=hybridjoin_worker, args=(stream_buffer, hash_table, queue), daemon=True
+        target=hybridjoin_worker, 
+        args=(stream_buffer, hash_table, queue, disk_buffer), 
+        daemon=True
     ) 
     
     # Start threads

@@ -8,7 +8,7 @@ from datetime import datetime
 
 class HashTable:
     def __init__(self, hS=10000):
-        self.hS = hS
+        self.hS = 10000
         self.slots_available = hS
         self.table = [[] for _ in range(hS)]  # list of lists for chaining
 
