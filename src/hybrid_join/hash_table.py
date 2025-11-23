@@ -14,9 +14,13 @@ class HashTable:
 
     @staticmethod
     def log_hashed(message: str) -> None:
-        PATH = "../../logs"
+        import os
+        script_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        log_dir = os.path.join(script_dir, 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, 'Hashed_data.log')
         # Writing to log file
-        with open(f"{PATH}/Hashed_data.log", "a", encoding="utf-8") as file:
+        with open(log_path, "a", encoding="utf-8") as file:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             file.write(f"[{timestamp}] - {message}\n")
 
@@ -25,31 +29,34 @@ class HashTable:
         return hash(key) % self.hS
 
     def insert(self, key: int, value: tuple) -> None:
-        """Inserts new entry or updates existing"""
+        """Inserts new entry (multi-map - allows multiple values per key)"""
 
         index = self._hash(key)
-        # Check if key exists and update
-        for pair in self.table[index]:
-            if pair[0] == key:
-                pair[1] = value
-                log_message: str = f"Updated key {key} with value {value}"
-                self.log_hashed(log_message)
-                return
-        # Key not found, append new key-value pair
+        # Append new key-value pair (multi-map behavior)
         self.table[index].append([key, value])
         self.slots_available -= 1
-        log_message: str = f"Inserted key {key} with value {value}"
-        self.log_hashed(log_message)
+        #log_message: str = f"Inserted key {key} with value {value}"
+        #self.log_hashed(log_message)
 
     def get_available_slots(self) -> int:
-        return self.slots_available
+        """Returns number of available slots"""
+        return max(0, self.slots_available)
+    
+    def get_total_entries(self) -> int:
+        """Returns total number of entries in hash table"""
+        total = 0
+        for bucket in self.table:
+            total += len(bucket)
+        return total
 
     def get(self, key):
+        """Get all values for a key (multi-map support)"""
         index = self._hash(key)
+        results = []
         for pair in self.table[index]:
             if pair[0] == key:
-                return pair[1]
-        return None  # Key not found
+                results.append(pair[1])
+        return results if results else None  # Return list of all matches
 
     def delete(self, key: int, value: tuple) -> bool:
         index = self._hash(key)

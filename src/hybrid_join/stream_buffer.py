@@ -14,24 +14,28 @@ class StreamBuffer:
 
     @staticmethod
     def log_stream(message: str) -> None:
-        PATH = "../../logs"
+        import os
+        script_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        log_dir = os.path.join(script_dir, 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        log_path = os.path.join(log_dir, 'Stream_buffer.log')
         # Writing to log file
-        with open(f"{PATH}/Stream_buffer.log", "a", encoding="utf-8") as file:
+        with open(log_path, "a", encoding="utf-8") as file:
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             file.write(f"[{timestamp}] - {message}\n")
         
     def push(self, data: tuple) -> None:
         with self.lock:
             self.buffer.append(data)
-        log_message: str = f"Added: {data}, Buffer: {list(self.buffer)}"
-        self.log_stream(log_message)
+        #log_message: str = f"Added: {data}, Buffer: {list(self.buffer)}"
+        #self.log_stream(log_message)
 
     def pop(self) -> tuple | None:
         with self.lock:
             if self.buffer:
                 item = self.buffer.popleft()
-                log_message: str = f"Retrieved: {item}, Buffer: {list(self.buffer)}"
-                self.log_stream(log_message)
+                #log_message: str = f"Retrieved: {item}, Buffer: {list(self.buffer)}"
+                #self.log_stream(log_message)
                 return item
             else:
                 log_message: str = "Buffer empty!"

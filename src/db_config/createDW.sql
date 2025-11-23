@@ -29,9 +29,7 @@ CREATE TABLE DimCustomer (
 -- DimProduct: Product details including categories and supplier
 CREATE TABLE DimProduct (
     Product_ID VARCHAR(20) PRIMARY KEY,
-    Product_Category_1 INT,
-    Product_Category_2 INT,
-    Product_Category_3 INT,
+    Product_Category VARCHAR(50),
     Product_Name VARCHAR(100),
     Supplier_ID INT,
     Supplier_Name VARCHAR(100)
@@ -60,6 +58,12 @@ CREATE TABLE DimStore (
     Store_Region VARCHAR(50)
 );
 
+-- DimSupplier: Supplier information
+CREATE TABLE DimSupplier (
+    Supplier_ID INT PRIMARY KEY,
+    Supplier_Name VARCHAR(100)
+);
+
 -- ============================================================
 -- FACT TABLE
 -- ============================================================
@@ -67,6 +71,7 @@ CREATE TABLE DimStore (
 -- FactSales: Central fact table containing sales transactions
 CREATE TABLE FactSales (
     Sale_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Order_ID INT,
     Customer_ID INT NOT NULL,
     Product_ID VARCHAR(20) NOT NULL,
     Date_ID INT NOT NULL,
@@ -93,7 +98,13 @@ CREATE TABLE FactSales (
     CONSTRAINT fk_store FOREIGN KEY (Store_ID) 
         REFERENCES DimStore(Store_ID)
         ON DELETE RESTRICT
-        ON UPDATE CASCADE
+        ON UPDATE CASCADE,
+    
+    INDEX idx_customer (Customer_ID),
+    INDEX idx_product (Product_ID),
+    INDEX idx_date (Date_ID),
+    INDEX idx_store (Store_ID),
+    INDEX idx_order (Order_ID)
 );
 
 -- ============================================================
