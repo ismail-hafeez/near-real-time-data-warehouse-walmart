@@ -40,29 +40,29 @@ Open `src/sql_queries/data_visualization.ipynb` in Jupyter Notebook and run all 
 
 ```
 root/
-    - data/                          # CSV data files
+    - data/                          
         - transactional_data.csv
         - customer_master_data.csv
         - product_master_data.csv
-    - logs/                          # Application logs
-    - report/                        # Project documentation
+    - logs/                          
+    - report/                        
         - Project-Report.pdf
-    - schema/                        # Database schema diagrams
+    - schema/                       
         - star_schema.png
     - src/
-        - db_config/                 # Database setup
-            - createDW.sql           # Star schema DDL
-            - dw_config.py           # Dimension table population
-        - hybrid_join/               # HYBRIDJOIN implementation
-            - main.py                # ETL orchestration
-            - hash_table.py          # Hash table component
-            - stream_buffer.py       # Stream buffer
-            - disk_buffer.py         # Disk buffer
-            - queue.py               # FIFO queue
-        - sql_queries/               # OLAP analysis
-            - queries.sql            # 20 analytical queries
-            - data_visualization.ipynb # Query execution & visualization
-    - requirements.txt              # Python dependencies
+        - db_config/                 
+            - createDW.sql          
+            - dw_config.py          
+        - hybrid_join/               
+            - main.py               
+            - hash_table.py        
+            - stream_buffer.py       
+            - disk_buffer.py         
+            - queue.py               
+        - sql_queries/               
+            - queries.sql           
+            - data_visualization.ipynb 
+    - requirements.txt              
 ```
 
 ## Key Components
